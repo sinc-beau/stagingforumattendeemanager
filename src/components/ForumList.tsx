@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Building2, Tag, ArrowRight, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { supabase, type Forum } from '../lib/supabase';
+import { forumsClient, supabase, type Forum } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ForumStats {
@@ -31,7 +31,7 @@ export function ForumList() {
   async function fetchForums() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await forumsClient
         .from('forums')
         .select('id, name, brand, date, city, venue')
         .order('date', { ascending: true });
