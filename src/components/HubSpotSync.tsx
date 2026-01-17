@@ -50,11 +50,6 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
   async function analyzeSubmissions(formId: string, type: 'executive' | 'initial'): Promise<{ newCount: number; duplicateCount: number }> {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    const hubspotApiKey = import.meta.env.VITE_HUBSPOT_API_KEY;
-
-    if (!hubspotApiKey) {
-      throw new Error('HubSpot API key not configured');
-    }
 
     const fetchFunction = type === 'executive' ? fetchExecutiveProfile : fetchInitialRegistration;
     const response = await fetchFunction(
@@ -62,7 +57,6 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
       forumId,
       supabaseUrl,
       supabaseAnonKey,
-      hubspotApiKey,
       false
     );
 
@@ -109,11 +103,6 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const hubspotApiKey = import.meta.env.VITE_HUBSPOT_API_KEY;
-
-      if (!hubspotApiKey) {
-        throw new Error('HubSpot API key not configured');
-      }
 
       const fetchFunction = type === 'executive' ? fetchExecutiveProfile : fetchInitialRegistration;
       const response = await fetchFunction(
@@ -121,7 +110,6 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
         forumId,
         supabaseUrl,
         supabaseAnonKey,
-        hubspotApiKey,
         false
       );
 
@@ -156,11 +144,6 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const hubspotApiKey = import.meta.env.VITE_HUBSPOT_API_KEY;
-
-      if (!hubspotApiKey) {
-        throw new Error('HubSpot API key not configured');
-      }
 
       const fetchFunction = type === 'executive' ? fetchExecutiveProfile : fetchInitialRegistration;
       const response = await fetchFunction(
@@ -168,7 +151,6 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
         forumId,
         supabaseUrl,
         supabaseAnonKey,
-        hubspotApiKey,
         true
       );
 

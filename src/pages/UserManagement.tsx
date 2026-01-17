@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, UserPlus, Edit2, Trash2, Shield } from 'lucide-react';
+import { ArrowLeft, UserPlus, Edit2, Trash2, Shield, CheckCircle, XCircle } from 'lucide-react';
 import { getAllUsers, createUser, updateUserRole, deleteUser } from '../services/authService';
-import type { User, UserRole } from '../types/auth';
+import { supabase } from '../lib/supabase';
+import type { User, UserRole, UserStatus } from '../types/auth';
 import { getRoleBadgeColor } from '../utils/permissions';
 
 export function UserManagement() {
@@ -40,6 +41,26 @@ export function UserManagement() {
       alert('User deleted successfully');
       fetchUsers();
     }
+  }
+
+  async function handleApproveUser(userId: string) {
+    const { error } = await supabase
+      .from('users')
+      .update({ status: 'approved' })
+      .eq('id', userId);
+
+    if (error) {
+      alert('Failed to approve user: ' + error.message);
+    } else {
+      alert('User approved successfully');
+      fetchUsers();
+    }
+  }
+
+  function getStatusBadgeColor(status: UserStatus) {
+    return status === 'approved'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-yellow-100 text-yellow-800';
   }
 
   if (loading) {
@@ -92,6 +113,9 @@ export function UserManagement() {
                     Role
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Created
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -108,11 +132,25 @@ export function UserManagement() {
                         {user.role}
                       </span>
                     </td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusBadgeColor(user.status)}`}>
+                        {user.status}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {new Date(user.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {user.status === 'pending' && (
+                          <button
+                            onClick={() => handleApproveUser(user.id)}
+                            className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                            title="Approve user"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => setEditingUser(user)}
                           className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"

@@ -45,7 +45,6 @@ export async function fetchInitialRegistration(
   eventId: string,
   supabaseUrl: string,
   supabaseAnonKey: string,
-  hubspotApiKey: string,
   saveToDatabase: boolean = false
 ): Promise<HubSpotResponse> {
   const apiUrl = `${supabaseUrl}/functions/v1/fetch-initial-registration`;
@@ -56,7 +55,7 @@ export async function fetchInitialRegistration(
       'Authorization': `Bearer ${supabaseAnonKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ formId, eventId, apiKey: hubspotApiKey, saveToDatabase }),
+    body: JSON.stringify({ formId, eventId, saveToDatabase }),
   });
 
   if (!response.ok) {
@@ -72,7 +71,6 @@ export async function fetchExecutiveProfile(
   eventId: string,
   supabaseUrl: string,
   supabaseAnonKey: string,
-  hubspotApiKey: string,
   saveToDatabase: boolean = false
 ): Promise<HubSpotResponse> {
   const apiUrl = `${supabaseUrl}/functions/v1/fetch-executive-profile`;
@@ -83,7 +81,7 @@ export async function fetchExecutiveProfile(
       'Authorization': `Bearer ${supabaseAnonKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ formId, eventId, apiKey: hubspotApiKey, saveToDatabase }),
+    body: JSON.stringify({ formId, eventId, saveToDatabase }),
   });
 
   if (!response.ok) {

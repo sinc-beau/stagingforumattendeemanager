@@ -3,6 +3,16 @@ import type { User } from '../types/auth';
 
 export async function signInWithMagicLink(email: string): Promise<{ error: Error | null }> {
   try {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('status')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (userData && userData.status === 'pending') {
+      return { error: new Error('Your account is pending approval. An administrator will review your request.') };
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -19,6 +29,16 @@ export async function signInWithMagicLink(email: string): Promise<{ error: Error
 
 export async function signInWithPassword(email: string, password: string): Promise<{ error: Error | null }> {
   try {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('status')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (userData && userData.status === 'pending') {
+      return { error: new Error('Your account is pending approval. An administrator will review your request.') };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -54,6 +74,12 @@ export async function getCurrentUser(): Promise<User | null> {
       .maybeSingle();
 
     if (error) throw error;
+
+    if (userData && userData.status === 'pending') {
+      await supabase.auth.signOut();
+      return null;
+    }
+
     return userData;
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -73,7 +99,7 @@ export async function createUser(email: string, password: string, role: string):
 
     const { error: updateError } = await supabase
       .from('users')
-      .update({ role })
+      .update({ role, status: 'approved' })
       .eq('id', authData.user.id);
 
     if (updateError) throw updateError;

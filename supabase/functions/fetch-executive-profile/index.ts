@@ -377,16 +377,33 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { formId, eventId, apiKey, saveToDatabase } = await req.json();
+    const { formId, eventId, saveToDatabase } = await req.json();
 
-    if (!formId || !apiKey) {
+    if (!formId) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Missing required fields: formId and apiKey"
+          error: "Missing required field: formId"
         }),
         {
           status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    const apiKey = Deno.env.get('HUBSPOT_API_KEY');
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "HubSpot API key not configured on server"
+        }),
+        {
+          status: 500,
           headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
