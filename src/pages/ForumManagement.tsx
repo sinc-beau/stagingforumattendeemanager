@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Settings, Users as UsersIcon, Download } from 'lucide-react';
-import { forumsClient, type Forum } from '../lib/supabase';
+import { supabase, type Forum } from '../lib/supabase';
 import { ForumSettings } from '../components/ForumSettings';
 import { AttendeesTable } from '../components/AttendeesTable';
 import { HubSpotSync } from '../components/HubSpotSync';
@@ -24,7 +24,7 @@ export function ForumManagement() {
   async function fetchForum() {
     try {
       setLoading(true);
-      const { data, error } = await forumsClient
+      const { data, error } = await supabase
         .from('forums')
         .select('*')
         .eq('id', forumId)

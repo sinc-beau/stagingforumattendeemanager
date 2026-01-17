@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Trash2, Save, Maximize2, FileJson, FileText, CheckCircle2, Mail, Loader2 } from 'lucide-react';
-import { supabase, forumsClient } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { Attendee, AttendeeStage, ForumSettings } from '../types/database';
 import type { Forum } from '../lib/supabase';
 import { AttendeeModal } from './AttendeeModal';
@@ -78,7 +78,7 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
 
   async function fetchForumAndSettings(): Promise<{ success: boolean; forumData: Forum | null }> {
     try {
-      const { data: forumData, error: forumError } = await forumsClient
+      const { data: forumData, error: forumError } = await supabase
         .from('forums')
         .select('*')
         .eq('id', attendee.forum_id)
