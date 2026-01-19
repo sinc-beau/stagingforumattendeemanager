@@ -194,16 +194,10 @@ export function AttendeesTable({ forumId }: AttendeesTableProps) {
                   Name
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Company
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Title
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Email
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  City
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions

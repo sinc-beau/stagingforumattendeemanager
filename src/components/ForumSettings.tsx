@@ -15,6 +15,7 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
   const [deniedTemplateId, setDeniedTemplateId] = useState('');
   const [waitlistedTemplateId, setWaitlistedTemplateId] = useState('');
   const [preliminaryApprovedTemplateId, setPreliminaryApprovedTemplateId] = useState('');
+  const [dealCode, setDealCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -41,6 +42,7 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
         setDeniedTemplateId(data.denied_email_template_id || '');
         setWaitlistedTemplateId(data.waitlisted_email_template_id || '');
         setPreliminaryApprovedTemplateId(data.preliminary_approved_email_template_id || '');
+        setDealCode(data.deal_code || '');
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -63,6 +65,7 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
             denied_email_template_id: deniedTemplateId,
             waitlisted_email_template_id: waitlistedTemplateId,
             preliminary_approved_email_template_id: preliminaryApprovedTemplateId,
+            deal_code: dealCode,
             updated_at: new Date().toISOString()
           })
           .eq('id', settings.id);
@@ -78,7 +81,8 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
             approved_email_template_id: approvedTemplateId,
             denied_email_template_id: deniedTemplateId,
             waitlisted_email_template_id: waitlistedTemplateId,
-            preliminary_approved_email_template_id: preliminaryApprovedTemplateId
+            preliminary_approved_email_template_id: preliminaryApprovedTemplateId,
+            deal_code: dealCode
           });
 
         if (error) throw error;
@@ -137,6 +141,22 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
           />
           <p className="mt-1 text-xs text-gray-500">
             Form used for executive profile submission (required for full approval)
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Deal Code
+          </label>
+          <input
+            type="text"
+            value={dealCode}
+            onChange={(e) => setDealCode(e.target.value)}
+            placeholder="Enter deal code"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            HubSpot deal code for this forum
           </p>
         </div>
       </div>

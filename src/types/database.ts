@@ -62,6 +62,7 @@ export interface ForumSettings {
   denied_email_template_id: string;
   waitlisted_email_template_id: string;
   preliminary_approved_email_template_id: string;
+  deal_code: string | null;
   created_at: string;
   updated_at: string;
 }
