@@ -7,6 +7,7 @@ import { AttendeeModal } from './AttendeeModal';
 import { ExecutiveProfileViewer } from './ExecutiveProfileViewer';
 import { EmailConfirmModal } from './EmailConfirmModal';
 import { DenialReasonModal } from './DenialReasonModal';
+import HubSpotSyncModal from './HubSpotSyncModal';
 import { sendStatusEmail, hasEmailBeenSent } from '../services/emailService';
 import type { EmailStatusType } from '../constants/emailTemplates';
 import { sendApprovalNotification, sendPreliminaryApprovalNotification } from '../services/slackService';
@@ -62,6 +63,8 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
   const [pendingEmailStatus, setPendingEmailStatus] = useState<EmailStatusType | null>(null);
   const [pendingStageChange, setPendingStageChange] = useState<AttendeeStage | null>(null);
   const [showDenialReasonModal, setShowDenialReasonModal] = useState(false);
+  const [showHubSpotSyncModal, setShowHubSpotSyncModal] = useState(false);
+  const [syncingHubSpot, setSyncingHubSpot] = useState(false);
 
   const userCanApprove = user ? canApproveAttendees(user.role) : false;
   const userCanSendEmails = user ? canSendEmails(user.role) : false;
@@ -280,6 +283,75 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
     setPendingStageChange(null);
   }
 
+  function validateHubSpotSync(): string[] {
+    const missingFields: string[] = [];
+
+    if (!forumSettings?.deal_code) {
+      missingFields.push('Deal Code (on event)');
+    }
+    if (!formData.sinc_rep) {
+      missingFields.push('SINC Rep');
+    }
+    if (!formData.first_name) {
+      missingFields.push('First Name');
+    }
+    if (!formData.last_name) {
+      missingFields.push('Last Name');
+    }
+    if (!formData.company_email) {
+      missingFields.push('Company Email');
+    }
+    if (!formData.management_level) {
+      missingFields.push('Management Level');
+    }
+    if (!formData.company_size) {
+      missingFields.push('Company Size');
+    }
+
+    return missingFields;
+  }
+
+  function handleHubSpotSyncClick() {
+    setShowHubSpotSyncModal(true);
+  }
+
+  async function handleHubSpotSync() {
+    try {
+      setSyncingHubSpot(true);
+      setShowHubSpotSyncModal(false);
+
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-hubspot-deal`;
+      const headers = {
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          attendeeId: attendee.id,
+          forumId: attendee.forum_id,
+          status: formData.stage,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert(`HubSpot deal ${result.action} successfully!`);
+        onRefresh();
+      } else {
+        throw new Error(result.details || result.error || 'Failed to sync with HubSpot');
+      }
+    } catch (err) {
+      console.error('Error syncing with HubSpot:', err);
+      alert(`Failed to sync with HubSpot: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setSyncingHubSpot(false);
+    }
+  }
+
   async function handleSave() {
     try {
       setSaving(true);
@@ -442,11 +514,19 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
                   )}
                 </div>
                 <button
-                  onClick={() => {}}
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-                  title="Create HubSpot Deal"
+                  onClick={handleHubSpotSyncClick}
+                  disabled={syncingHubSpot}
+                  className="flex items-center gap-1 px-2 py-1 text-xs bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded transition-colors"
+                  title="Sync to HubSpot"
                 >
-                  Create HubSpot Deal
+                  {syncingHubSpot ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Syncing...
+                    </>
+                  ) : (
+                    'Sync to HubSpot'
+                  )}
                 </button>
               </div>
 
@@ -723,6 +803,14 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
           attendeeName={`${attendee.first_name} ${attendee.last_name}`}
           onConfirm={handleDenialReasonSubmit}
           onCancel={handleDenialReasonCancel}
+        />
+      )}
+      {showHubSpotSyncModal && (
+        <HubSpotSyncModal
+          attendeeName={`${attendee.first_name} ${attendee.last_name}`}
+          missingFields={validateHubSpotSync()}
+          onConfirm={handleHubSpotSync}
+          onClose={() => setShowHubSpotSyncModal(false)}
         />
       )}
     </>
