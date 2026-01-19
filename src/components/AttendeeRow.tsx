@@ -298,8 +298,8 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
     if (!formData.last_name) {
       missingFields.push('Last Name');
     }
-    if (!formData.company_email) {
-      missingFields.push('Company Email');
+    if (!formData.email) {
+      missingFields.push('Email');
     }
     if (!formData.management_level) {
       missingFields.push('Management Level');

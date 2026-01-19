@@ -18,7 +18,6 @@ interface AttendeeData {
   first_name: string;
   last_name: string;
   email: string;
-  company_email: string;
   company: string;
   title: string;
   industry: string;
@@ -118,7 +117,7 @@ const createContact = async (
   hubspotApiKey: string
 ): Promise<string | null> => {
   try {
-    console.log(`👤 Creating new contact for: ${attendee.company_email}`);
+    console.log(`👤 Creating new contact for: ${attendee.email}`);
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/contacts`,
       {
@@ -129,7 +128,7 @@ const createContact = async (
         },
         body: JSON.stringify({
           properties: {
-            email: attendee.company_email,
+            email: attendee.email,
             firstname: attendee.first_name,
             lastname: attendee.last_name,
             company: attendee.company,
@@ -174,7 +173,7 @@ const createDeal = async (
       pipeline: FORUM_PIPELINE,
       closedate: new Date().toISOString(),
       company_name: attendee.company,
-      contact_email: attendee.company_email,
+      contact_email: attendee.email,
       contact_name: `${attendee.first_name} ${attendee.last_name}`,
       industry: attendee.industry || "",
       sinc_deal_type: "Forum Attendee",
@@ -378,7 +377,7 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    let contactId = await findContactByEmail(attendee.company_email, hubspotApiKey);
+    let contactId = await findContactByEmail(attendee.email, hubspotApiKey);
 
     if (!contactId) {
       contactId = await createContact(attendee, hubspotApiKey);
