@@ -426,8 +426,8 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={6} className="px-4 py-2 bg-gray-50">
-            <div className="space-y-2">
+          <td colSpan={6} className="px-4 py-3 bg-gray-50">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   {attendee.executive_profile_data && (
@@ -450,140 +450,197 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
                 </button>
               </div>
 
-              <div className="grid grid-cols-6 gap-2 text-xs">
+              <div className="grid grid-cols-6 gap-2.5 text-xs">
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">First Name</label>
-                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">First Name</label>
+                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Last Name</label>
-                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Last Name</label>
+                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Email</label>
-                  <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Email</label>
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Company Email</label>
-                  <input type="email" value={formData.company_email} onChange={(e) => setFormData({ ...formData, company_email: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Company Email</label>
+                  <input type="email" value={formData.company_email} onChange={(e) => setFormData({ ...formData, company_email: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Cellphone</label>
-                  <input type="tel" value={formData.cellphone} onChange={(e) => setFormData({ ...formData, cellphone: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Cellphone</label>
+                  <input type="tel" value={formData.cellphone} onChange={(e) => setFormData({ ...formData, cellphone: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Gender</label>
-                  <input type="text" value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Gender</label>
+                  <input type="text" value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Company</label>
-                  <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Company</label>
+                  <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Title</label>
-                  <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Title</label>
+                  <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">LinkedIn Title</label>
-                  <input type="text" value={formData.linkedin_title} onChange={(e) => setFormData({ ...formData, linkedin_title: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">LinkedIn Title</label>
+                  <input type="text" value={formData.linkedin_title} onChange={(e) => setFormData({ ...formData, linkedin_title: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">LinkedIn URL</label>
-                  <input type="url" value={formData.linkedin} onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">LinkedIn URL</label>
+                  <input type="url" value={formData.linkedin} onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Company Size</label>
-                  <input type="text" value={formData.company_size} onChange={(e) => setFormData({ ...formData, company_size: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Management Level</label>
+                  <select value={formData.management_level} onChange={(e) => setFormData({ ...formData, management_level: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded">
+                    <option value="">Select...</option>
+                    <option value="C-Suite">C-Suite</option>
+                    <option value="VP">VP</option>
+                    <option value="Director">Director</option>
+                    <option value="Manager">Manager</option>
+                  </select>
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Industry</label>
-                  <input type="text" value={formData.industry} onChange={(e) => setFormData({ ...formData, industry: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Company Size</label>
+                  <input type="text" value={formData.company_size} onChange={(e) => setFormData({ ...formData, company_size: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-700 mb-1">Industry</label>
+                  <input type="text" value={formData.industry} onChange={(e) => setFormData({ ...formData, industry: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div className="col-span-2">
-                  <label className="block font-medium text-gray-700 mb-0.5">Company Based Out Of</label>
-                  <input type="text" value={formData.company_based_out_of} onChange={(e) => setFormData({ ...formData, company_based_out_of: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Company Based Out Of</label>
+                  <input type="text" value={formData.company_based_out_of} onChange={(e) => setFormData({ ...formData, company_based_out_of: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">City</label>
-                  <input type="text" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">City</label>
+                  <input type="text" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">State</label>
-                  <input type="text" value={formData.state} onChange={(e) => setFormData({ ...formData, state: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">State</label>
+                  <input type="text" value={formData.state} onChange={(e) => setFormData({ ...formData, state: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Flight</label>
-                  <input type="text" value={formData.flight} onChange={(e) => setFormData({ ...formData, flight: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Flight</label>
+                  <input type="text" value={formData.flight} onChange={(e) => setFormData({ ...formData, flight: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Airport</label>
-                  <input type="text" value={formData.airport} onChange={(e) => setFormData({ ...formData, airport: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Airport</label>
+                  <input type="text" value={formData.airport} onChange={(e) => setFormData({ ...formData, airport: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Hotel</label>
-                  <input type="text" value={formData.hotel} onChange={(e) => setFormData({ ...formData, hotel: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Hotel</label>
+                  <input type="text" value={formData.hotel} onChange={(e) => setFormData({ ...formData, hotel: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Arriving</label>
-                  <input type="date" value={formData.arriving || ''} onChange={(e) => setFormData({ ...formData, arriving: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Arriving</label>
+                  <input type="date" value={formData.arriving || ''} onChange={(e) => setFormData({ ...formData, arriving: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Departing</label>
-                  <input type="date" value={formData.departing || ''} onChange={(e) => setFormData({ ...formData, departing: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Departing</label>
+                  <input type="date" value={formData.departing || ''} onChange={(e) => setFormData({ ...formData, departing: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Dietary Notes</label>
-                  <input type="text" value={formData.dietary_notes} onChange={(e) => setFormData({ ...formData, dietary_notes: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Dietary Notes</label>
+                  <input type="text" value={formData.dietary_notes} onChange={(e) => setFormData({ ...formData, dietary_notes: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Approval Date</label>
-                  <input type="date" value={formData.approval_date || ''} onChange={(e) => setFormData({ ...formData, approval_date: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Approval Date</label>
+                  <input type="date" value={formData.approval_date || ''} onChange={(e) => setFormData({ ...formData, approval_date: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Intro Email Sent</label>
-                  <input type="date" value={formData.intro_email_sent_date || ''} onChange={(e) => setFormData({ ...formData, intro_email_sent_date: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Intro Email Sent</label>
+                  <input type="date" value={formData.intro_email_sent_date || ''} onChange={(e) => setFormData({ ...formData, intro_email_sent_date: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Wishlist</label>
-                  <input type="text" value={formData.wishlist} onChange={(e) => setFormData({ ...formData, wishlist: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Call Setter</label>
+                  <select value={formData.call_setter} onChange={(e) => setFormData({ ...formData, call_setter: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded">
+                    <option value="">Select...</option>
+                    <option value="Trevor">Trevor</option>
+                    <option value="Jillian">Jillian</option>
+                    <option value="Raven">Raven</option>
+                    <option value="Julia">Julia</option>
+                    <option value="Kim">Kim</option>
+                    <option value="Dante">Dante</option>
+                    <option value="Tucker">Tucker</option>
+                    <option value="Elisabeth">Elisabeth</option>
+                    <option value="Kaylee">Kaylee</option>
+                    <option value="Katherine">Katherine</option>
+                    <option value="Joe">Joe</option>
+                    <option value="Mariana">Mariana</option>
+                    <option value="Samara">Samara</option>
+                    <option value="Beau">Beau</option>
+                    <option value="Ross">Ross</option>
+                    <option value="Amir">Amir</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-6 gap-2.5 text-xs mt-3 pt-3 border-t border-gray-200">
+                <div>
+                  <label className="block font-medium text-gray-700 mb-1">SINC Rep</label>
+                  <select value={formData.sinc_rep} onChange={(e) => setFormData({ ...formData, sinc_rep: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded">
+                    <option value="">Select...</option>
+                    <option value="Trevor">Trevor</option>
+                    <option value="Jillian">Jillian</option>
+                    <option value="Raven">Raven</option>
+                    <option value="Julia">Julia</option>
+                    <option value="Kim">Kim</option>
+                    <option value="Dante">Dante</option>
+                    <option value="Tucker">Tucker</option>
+                    <option value="Elisabeth">Elisabeth</option>
+                    <option value="Kaylee">Kaylee</option>
+                    <option value="Katherine">Katherine</option>
+                    <option value="Joe">Joe</option>
+                    <option value="Mariana">Mariana</option>
+                    <option value="Samara">Samara</option>
+                    <option value="Beau">Beau</option>
+                    <option value="Ross">Ross</option>
+                    <option value="Amir">Amir</option>
+                  </select>
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">Call Setter</label>
-                  <input type="text" value={formData.call_setter} onChange={(e) => setFormData({ ...formData, call_setter: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
+                  <label className="block font-medium text-gray-700 mb-1">Wishlist</label>
+                  <select value={formData.wishlist} onChange={(e) => setFormData({ ...formData, wishlist: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded">
+                    <option value="">Select...</option>
+                    <option value="SINC">SINC</option>
+                    <option value="Client">Client</option>
+                    <option value="Both">Both</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
-                <div>
-                  <label className="block font-medium text-gray-700 mb-0.5">SINC Rep</label>
-                  <input type="text" value={formData.sinc_rep} onChange={(e) => setFormData({ ...formData, sinc_rep: e.target.value })} className="w-full px-2 py-1 border border-gray-300 rounded" />
-                </div>
-                <div className="col-span-6 flex gap-4 items-center">
-                  <label className="flex items-center gap-1.5">
-                    <input type="checkbox" checked={formData.pre_event_call_scheduled} onChange={(e) => setFormData({ ...formData, pre_event_call_scheduled: e.target.checked })} className="w-3 h-3 text-blue-600 border-gray-300 rounded" />
+                <div className="col-span-4 flex gap-6 items-center pt-6">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={formData.pre_event_call_scheduled} onChange={(e) => setFormData({ ...formData, pre_event_call_scheduled: e.target.checked })} className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded" />
                     <span className="text-gray-700">Pre Event Call</span>
                   </label>
-                  <label className="flex items-center gap-1.5">
-                    <input type="checkbox" checked={formData.speaker} onChange={(e) => setFormData({ ...formData, speaker: e.target.checked })} className="w-3 h-3 text-blue-600 border-gray-300 rounded" />
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={formData.speaker} onChange={(e) => setFormData({ ...formData, speaker: e.target.checked })} className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded" />
                     <span className="text-gray-700">Speaker</span>
                   </label>
-                  <label className="flex items-center gap-1.5">
-                    <input type="checkbox" checked={formData.rebook} onChange={(e) => setFormData({ ...formData, rebook: e.target.checked })} className="w-3 h-3 text-blue-600 border-gray-300 rounded" />
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={formData.rebook} onChange={(e) => setFormData({ ...formData, rebook: e.target.checked })} className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded" />
                     <span className="text-gray-700">Rebook</span>
                   </label>
-                  <label className="flex items-center gap-1.5">
-                    <input type="checkbox" checked={formData.council_member} onChange={(e) => setFormData({ ...formData, council_member: e.target.checked })} className="w-3 h-3 text-blue-600 border-gray-300 rounded" />
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={formData.council_member} onChange={(e) => setFormData({ ...formData, council_member: e.target.checked })} className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded" />
                     <span className="text-gray-700">Council Member</span>
                   </label>
                 </div>
-                <div className="col-span-6">
-                  <label className="block font-medium text-gray-700 mb-0.5">Notes</label>
-                  <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={2} className="w-full px-2 py-1 border border-gray-300 rounded" />
-                </div>
-                {formData.stage === 'denied' && attendee.denial_reason && (
-                  <div className="col-span-6">
-                    <label className="block font-medium text-gray-700 mb-0.5">Denial Reason</label>
-                    <div className="w-full px-2 py-1 bg-red-50 border border-red-200 rounded text-gray-900">{attendee.denial_reason}</div>
-                  </div>
-                )}
               </div>
+
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <label className="block font-medium text-gray-700 mb-1 text-xs">Notes</label>
+                <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={2} className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded" />
+              </div>
+
+              {formData.stage === 'denied' && attendee.denial_reason && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <label className="block font-medium text-gray-700 mb-1 text-xs">Denial Reason</label>
+                  <div className="w-full px-2 py-1.5 bg-red-50 border border-red-200 rounded text-xs text-gray-900">{attendee.denial_reason}</div>
+                </div>
+              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button onClick={() => setIsExpanded(false)} className="px-2 py-1 text-xs text-gray-700 hover:bg-gray-200 rounded transition-colors">Cancel</button>
