@@ -89,6 +89,8 @@ const createDeal = async (
       dealProperties.hubspot_owner_id = ownerId;
     }
 
+    console.log(`📤 Deal request:`, JSON.stringify(dealProperties, null, 2));
+
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/deals`,
       {
@@ -105,8 +107,9 @@ const createDeal = async (
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ Failed to create deal:`, errorText);
-      return null;
+      console.error(`❌ Failed to create deal. Status: ${response.status}`);
+      console.error(`❌ Error details:`, errorText);
+      throw new Error(`HubSpot API error (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
