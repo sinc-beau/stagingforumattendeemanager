@@ -64,7 +64,7 @@ const getHubSpotDealStage = (status: string): string => {
 const findContactByEmail = async (
   email: string,
   hubspotApiKey: string
-): Promise<string | null> => {
+): Promise<{ contactId: string | null; error?: any }> => {
   try {
     console.log(`🔍 Searching for contact with email: ${email}`);
     const response = await fetch(
@@ -95,29 +95,52 @@ const findContactByEmail = async (
     if (!response.ok) {
       const errorText = await response.text();
       console.error("❌ Failed to search for contact:", errorText);
-      return null;
+      return {
+        contactId: null,
+        error: {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        }
+      };
     }
 
     const data = await response.json();
     if (data.results && data.results.length > 0) {
       console.log(`✅ Found existing contact: ${data.results[0].id}`);
-      return data.results[0].id;
+      return { contactId: data.results[0].id };
     }
 
     console.log("ℹ️ No existing contact found");
-    return null;
+    return { contactId: null };
   } catch (error) {
     console.error("💥 Error searching for contact:", error);
-    return null;
+    return {
+      contactId: null,
+      error: error instanceof Error ? error.message : String(error)
+    };
   }
 };
 
 const createContact = async (
   attendee: AttendeeData,
   hubspotApiKey: string
-): Promise<string | null> => {
+): Promise<{ contactId: string | null; error?: any }> => {
   try {
     console.log(`👤 Creating new contact for: ${attendee.email}`);
+    const requestBody = {
+      properties: {
+        email: attendee.email,
+        firstname: attendee.first_name,
+        lastname: attendee.last_name,
+        company: attendee.company,
+        jobtitle: attendee.title,
+        industry: attendee.industry || "",
+      },
+    };
+
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/contacts`,
       {
@@ -126,31 +149,32 @@ const createContact = async (
           Authorization: `Bearer ${hubspotApiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          properties: {
-            email: attendee.email,
-            firstname: attendee.first_name,
-            lastname: attendee.last_name,
-            company: attendee.company,
-            jobtitle: attendee.title,
-            industry: attendee.industry || "",
-          },
-        }),
+        body: JSON.stringify(requestBody),
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("❌ Failed to create contact:", errorText);
-      return null;
+      return {
+        contactId: null,
+        error: {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        }
+      };
     }
 
     const data = await response.json();
     console.log(`✅ Created new contact: ${data.id}`);
-    return data.id;
+    return { contactId: data.id };
   } catch (error) {
     console.error("💥 Error creating contact:", error);
-    return null;
+    return {
+      contactId: null,
+      error: error instanceof Error ? error.message : String(error)
+    };
   }
 };
 
@@ -377,13 +401,25 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    let contactId = await findContactByEmail(attendee.email, hubspotApiKey);
+    const findResult = await findContactByEmail(attendee.email, hubspotApiKey);
+
+    let contactId = findResult.contactId;
+    let debugInfo: any = {
+      findContact: findResult,
+      createContact: null,
+    };
 
     if (!contactId) {
-      contactId = await createContact(attendee, hubspotApiKey);
+      const createResult = await createContact(attendee, hubspotApiKey);
+      contactId = createResult.contactId;
+      debugInfo.createContact = createResult;
 
       if (!contactId) {
-        throw new Error("Failed to find or create contact in HubSpot");
+        console.error("Full debug info:", JSON.stringify(debugInfo, null, 2));
+        throw new Error(JSON.stringify({
+          message: "Failed to find or create contact in HubSpot",
+          debug: debugInfo
+        }));
       }
     }
 
