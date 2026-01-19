@@ -6,6 +6,54 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 }
 
+const SINC_REPS = [
+  { id: '59207503', name: 'James Hermann' },
+  { id: '75919879', name: 'Tucker Mcgaugh' },
+  { id: '76643189', name: 'Jack Gregory' },
+  { id: '76699261', name: 'Julia Shoffner' },
+  { id: '79447812', name: 'Leah Fairchild' },
+  { id: '79447813', name: 'Beckett Soignier' },
+  { id: '79447814', name: 'Hunter McClure' },
+  { id: '80655731', name: 'Beau Horton' },
+  { id: '81142709', name: 'Jared Bral' },
+  { id: '83333527', name: 'Kaylee Chick' },
+  { id: '117334291', name: 'Alicia Hinrichs' },
+  { id: '226256489', name: 'Events SINC USA' },
+  { id: '246749077', name: 'Kimberly Wright' },
+  { id: '249871130', name: 'Barbara Cavazos' },
+  { id: '254155041', name: 'Jillian Klumbach' },
+  { id: '325421796', name: 'Ellie Trace' },
+  { id: '405620310', name: 'Daniel Zierk' },
+  { id: '446973483', name: 'Brian Richards' },
+  { id: '452522995', name: 'Danny Riggs' },
+  { id: '465765582', name: 'Dante Amigone' },
+  { id: '477103320', name: 'Samara Cassuci' },
+  { id: '680535117', name: 'Trevor Jackson' },
+  { id: '752490040', name: 'Amir Patel' },
+  { id: '816307166', name: 'Jessica Rongen' },
+  { id: '859404638', name: 'Katherine Lerner' },
+  { id: '1112781027', name: 'Laura Carmony' },
+  { id: '1267850482', name: 'Ross Abbott' },
+  { id: '1268435101', name: 'Raven Adan' },
+  { id: '1562201038', name: 'Elisabeth Elsborg' },
+  { id: '1657979770', name: 'Warren Miles' },
+  { id: '1675270341', name: 'Rudy Garza' },
+  { id: '1740878928', name: 'Mariana Kuri' },
+]
+
+const getSincRepId = (name: string | null): string | null => {
+  if (!name || name.trim() === '') return null
+
+  const searchName = name.trim().toLowerCase()
+
+  const rep = SINC_REPS.find(rep =>
+    rep.name.toLowerCase().includes(searchName) ||
+    searchName.includes(rep.name.toLowerCase().split(' ')[0].toLowerCase())
+  )
+
+  return rep ? rep.id : null
+}
+
 interface DealRequest {
   attendeeId: string
   forumId: string
@@ -244,10 +292,12 @@ const createDeal = async (
     }
 
     if (attendee.sinc_rep) {
-      const ownerId = parseInt(attendee.sinc_rep, 10)
-      if (!isNaN(ownerId)) {
-        console.log(`Assigning HubSpot owner ID: ${ownerId}`)
+      const ownerId = getSincRepId(attendee.sinc_rep)
+      if (ownerId) {
+        console.log(`Assigning HubSpot owner ID: ${ownerId} for SINC rep: ${attendee.sinc_rep}`)
         dealProperties.hubspot_owner_id = ownerId
+      } else {
+        console.warn(`Could not find HubSpot owner ID for SINC rep: ${attendee.sinc_rep}`)
       }
     }
 
