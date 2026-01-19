@@ -61,19 +61,22 @@ const getHubSpotDealStageAndPipeline = (status: string): { dealstage: string, pi
 }
 
 const getExecutiveAttendanceLevel = (managementLevel: string | null): string => {
-  if (!managementLevel) return 'Net New'
-
-  const level = managementLevel.toUpperCase()
-
-  if (level.includes('C-LEVEL') || level.includes('CEO') || level.includes('CTO') || level.includes('CFO') || level.includes('COO')) {
-    return 'C-Level'
-  } else if (level.includes('VP') || level.includes('DIRECTOR')) {
-    return 'VP-Director'
-  } else if (level.includes('MID')) {
-    return 'Midmarket'
+  if (!managementLevel || managementLevel.trim() === '') {
+    return 'Net New'
   }
 
-  return 'Net New'
+  switch (managementLevel.trim()) {
+    case 'C-Suite':
+      return 'C-Level'
+    case 'VP':
+      return 'VP-Director'
+    case 'Director':
+      return 'VP-Director'
+    case 'Manager':
+      return 'Midmarket'
+    default:
+      return 'Net New'
+  }
 }
 
 const findContactByEmail = async (
