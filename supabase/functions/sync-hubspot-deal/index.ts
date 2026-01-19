@@ -60,6 +60,22 @@ const getHubSpotDealStageAndPipeline = (status: string): { dealstage: string, pi
   return { dealstage, pipeline }
 }
 
+const getExecutiveAttendanceLevel = (managementLevel: string | null): string => {
+  if (!managementLevel) return 'Net New'
+
+  const level = managementLevel.toUpperCase()
+
+  if (level.includes('C-LEVEL') || level.includes('CEO') || level.includes('CTO') || level.includes('CFO') || level.includes('COO')) {
+    return 'C-Level'
+  } else if (level.includes('VP') || level.includes('DIRECTOR')) {
+    return 'VP-Director'
+  } else if (level.includes('MID')) {
+    return 'Midmarket'
+  }
+
+  return 'Net New'
+}
+
 const findContactByEmail = async (
   email: string,
   hubspotApiKey: string
@@ -209,6 +225,8 @@ const createDeal = async (
   try {
     const { dealstage, pipeline } = getHubSpotDealStageAndPipeline(status)
 
+    const executiveLevel = getExecutiveAttendanceLevel(attendee.management_level)
+
     const dealProperties: any = {
       dealname: dealCode,
       dealstage: dealstage,
@@ -219,7 +237,7 @@ const createDeal = async (
       contact_name: `${attendee.first_name} ${attendee.last_name}`,
       industry: attendee.industry,
       sinc_deal_type: 'Forum Attendee',
-      executive_attendance_level: `${status};${attendee.management_level}`
+      executive_attendance_level: executiveLevel
     }
 
     if (attendee.sinc_rep) {
