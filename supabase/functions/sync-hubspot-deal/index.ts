@@ -2,8 +2,8 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 }
 
 interface DealRequest {
@@ -36,105 +36,30 @@ interface ForumSettingsData {
   deal_code: string | null
 }
 
-const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { dealstage: string, pipeline: string } => {
-  let pipeline = '90149250'
+const getHubSpotDealStageAndPipeline = (status: string): { dealstage: string, pipeline: string } => {
+  const pipeline = '90149250'
   let dealstage = '166944416'
 
-  switch (eventType.toUpperCase()) {
-    case 'FORUM':
-      pipeline = '90149250'
+  switch (status) {
+    case 'preliminary_approved':
+      dealstage = '166944416'
       break
-    case 'DINNER':
-      pipeline = '90169477'
+    case 'approved':
+      dealstage = '166944415'
       break
-    case 'VEB':
-      pipeline = '90213999'
+    case 'denied':
+      dealstage = '166990894'
       break
-    case 'VRT':
-      pipeline = '90168587'
+    case 'waitlisted':
+      dealstage = '166990898'
       break
     default:
-      pipeline = '90149250'
-  }
-
-  if (eventType.toUpperCase() === 'FORUM') {
-    switch (status) {
-      case 'preliminary_approved':
-        dealstage = '166944416'
-        break
-      case 'approved':
-        dealstage = '166944415'
-        break
-      case 'denied':
-        dealstage = '166990894'
-        break
-      case 'waitlisted':
-        dealstage = '166990898'
-        break
-      default:
-        dealstage = '166944416'
-    }
-  } else if (eventType.toUpperCase() === 'DINNER') {
-    switch (status) {
-      case 'approved':
-        dealstage = '166990866'
-        break
-      case 'denied':
-        dealstage = '166990871'
-        break
-      case 'waitlisted':
-        dealstage = '166990868'
-        break
-      default:
-        dealstage = '166990866'
-    }
-  } else if (eventType.toUpperCase() === 'VEB') {
-    switch (status) {
-      case 'approved':
-        dealstage = '167042459'
-        break
-      case 'denied':
-        dealstage = '167042457'
-        break
-      case 'waitlisted':
-        dealstage = '167042458'
-        break
-      default:
-        dealstage = '167042459'
-    }
-  } else if (eventType.toUpperCase() === 'VRT') {
-    switch (status) {
-      case 'approved':
-        dealstage = '167095399'
-        break
-      case 'denied':
-        dealstage = '167095400'
-        break
-      case 'waitlisted':
-        dealstage = '167095396'
-        break
-      default:
-        dealstage = '167095399'
-    }
+      dealstage = '166944416'
   }
 
   return { dealstage, pipeline }
 }
 
-const getSincDealType = (eventType: string): string => {
-  switch (eventType.toUpperCase()) {
-    case 'FORUM':
-      return 'Forum Attendee'
-    case 'DINNER':
-      return 'Dinner Attendee'
-    case 'VEB':
-      return 'VEB Attendee'
-    case 'VRT':
-      return 'vRoundtable Attendee'
-    default:
-      return 'Forum Attendee'
-  }
-}
 
 const createDeal = async (
   attendee: AttendeeData,
@@ -144,8 +69,7 @@ const createDeal = async (
   hubspotApiKey: string
 ): Promise<string | null> => {
   try {
-    const { dealstage, pipeline } = getHubSpotDealStageAndPipeline(status, forum.brand)
-    const sincDealType = getSincDealType(forum.brand)
+    const { dealstage, pipeline } = getHubSpotDealStageAndPipeline(status)
 
     const dealProperties: any = {
       dealname: dealCode,
@@ -156,7 +80,7 @@ const createDeal = async (
       contact_email: attendee.email,
       contact_name: `${attendee.first_name} ${attendee.last_name}`,
       industry: attendee.industry,
-      sinc_deal_type: sincDealType,
+      sinc_deal_type: 'Forum Attendee',
       executive_attendance_level: `${status};${attendee.management_level}`
     }
 
@@ -198,7 +122,7 @@ const createDeal = async (
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { status: 200, headers: corsHeaders })
   }
 
   if (req.method !== 'POST') {
