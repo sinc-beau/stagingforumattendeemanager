@@ -136,96 +136,10 @@ const getSincDealType = (eventType: string): string => {
   }
 }
 
-const findContactByEmail = async (email: string, hubspotApiKey: string): Promise<string | null> => {
-  try {
-    console.log(`🔍 Searching for contact with email: ${email}`)
-    const response = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/search`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hubspotApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        filterGroups: [{
-          filters: [{
-            propertyName: 'email',
-            operator: 'EQ',
-            value: email
-          }]
-        }],
-        properties: ['id', 'email', 'firstname', 'lastname']
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('❌ Failed to search for contact:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText
-      })
-      return null
-    }
-
-    const data = await response.json()
-    if (data.results && data.results.length > 0) {
-      console.log(`✅ Found existing contact: ${data.results[0].id}`)
-      return data.results[0].id
-    }
-
-    console.log('ℹ️ No existing contact found')
-    return null
-  } catch (error) {
-    console.error('💥 Error searching for contact:', error)
-    return null
-  }
-}
-
-const createContact = async (attendee: AttendeeData, hubspotApiKey: string): Promise<string | null> => {
-  try {
-    console.log(`👤 Creating new contact for: ${attendee.email}`)
-    const response = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hubspotApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        properties: {
-          email: attendee.email,
-          firstname: attendee.first_name,
-          lastname: attendee.last_name,
-          company: attendee.company,
-          jobtitle: attendee.title,
-          industry: attendee.industry
-        }
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('❌ Failed to create contact:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText
-      })
-      return null
-    }
-
-    const data = await response.json()
-    console.log(`✅ Created new contact: ${data.id}`)
-    return data.id
-  } catch (error) {
-    console.error('💥 Error creating contact:', error)
-    return null
-  }
-}
-
-const createOrUpdateDeal = async (
+const createDeal = async (
   attendee: AttendeeData,
   forum: ForumData,
   dealCode: string,
-  contactId: string,
   status: string,
   hubspotApiKey: string
 ): Promise<string | null> => {
@@ -275,37 +189,10 @@ const createOrUpdateDeal = async (
     }
 
     const data = await response.json()
-    const dealId = data.id
-
-    await associateDealWithContact(dealId, contactId, hubspotApiKey)
-
-    return dealId
+    return data.id
   } catch (error) {
-    console.error('Error creating/updating deal:', error)
+    console.error('Error creating deal:', error)
     return null
-  }
-}
-
-const associateDealWithContact = async (dealId: string, contactId: string, hubspotApiKey: string): Promise<boolean> => {
-  try {
-    const response = await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}/associations/contacts/${contactId}/deal_to_contact`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${hubspotApiKey}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      console.error('Failed to associate deal with contact:', response.status, await response.text())
-      return false
-    }
-
-    console.log(`Successfully associated deal ${dealId} with contact ${contactId}`)
-    return true
-  } catch (error) {
-    console.error('Error associating deal with contact:', error)
-    return false
   }
 }
 
@@ -397,23 +284,10 @@ Deno.serve(async (req) => {
       throw new Error(`Forum settings or deal_code not found for forum: ${forumId}`)
     }
 
-    let contactId = await findContactByEmail(attendee.email, hubspotApiKey)
-
-    if (!contactId) {
-      console.log(`Contact not found for ${attendee.email}, creating new contact`)
-      contactId = await createContact(attendee, hubspotApiKey)
-
-      if (!contactId) {
-        throw new Error('Failed to find or create contact in HubSpot')
-      }
-    }
-
-    console.log(`Found/created contact: ${contactId}`)
-
-    const dealId = await createOrUpdateDeal(attendee, forum, forumSettings.deal_code, contactId, status, hubspotApiKey)
+    const dealId = await createDeal(attendee, forum, forumSettings.deal_code, status, hubspotApiKey)
 
     if (!dealId) {
-      throw new Error('Failed to create or update deal in HubSpot')
+      throw new Error('Failed to create deal in HubSpot')
     }
 
     await supabaseClient
@@ -427,7 +301,6 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         dealId,
-        contactId,
         message: 'HubSpot deal processed successfully'
       }),
       {
