@@ -7,40 +7,39 @@ const corsHeaders = {
 }
 
 interface DealRequest {
-  submissionId: string
+  attendeeId: string
+  forumId: string
   status: 'approved' | 'denied' | 'waitlisted' | 'preliminary_approved'
-  eventId: string
-  sincRepId?: string
 }
 
-interface SubmissionData {
+interface AttendeeData {
   id: string
-  firstname: string
-  lastname: string
+  first_name: string
+  last_name: string
   email: string
   company: string
-  jobtitle: string
+  title: string
   industry: string
-  deal_code: string
-  event_id: string
-  status: string
+  sinc_rep: string
+  management_level: string
 }
 
-interface EventData {
+interface ForumData {
   id: string
-  event_name: string
-  event_date: string
-  event_city: string
-  state: string
+  name: string
+  brand: string
+  date: string
+  city: string
 }
 
-// Map status and event type to HubSpot deal stage and pipeline
-const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { dealstage: string, pipeline: string } => {
-  // Default to FORUM pipeline and stages
-  let pipeline = '90149250' // FORUM pipeline ID
-  let dealstage = '166944416' // FORUM preliminary_approved stage
+interface ForumSettingsData {
+  deal_code: string | null
+}
 
-  // Set pipeline based on event type
+const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { dealstage: string, pipeline: string } => {
+  let pipeline = '90149250'
+  let dealstage = '166944416'
+
   switch (eventType.toUpperCase()) {
     case 'FORUM':
       pipeline = '90149250'
@@ -55,10 +54,9 @@ const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { de
       pipeline = '90168587'
       break
     default:
-      pipeline = '90149250' // Default to FORUM pipeline
+      pipeline = '90149250'
   }
 
-  // Set dealstage based on event type and status
   if (eventType.toUpperCase() === 'FORUM') {
     switch (status) {
       case 'preliminary_approved':
@@ -74,7 +72,7 @@ const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { de
         dealstage = '166990898'
         break
       default:
-        dealstage = '166944416' // Default to preliminary_approved
+        dealstage = '166944416'
     }
   } else if (eventType.toUpperCase() === 'DINNER') {
     switch (status) {
@@ -88,7 +86,7 @@ const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { de
         dealstage = '166990868'
         break
       default:
-        dealstage = '166990866' // Default to approved
+        dealstage = '166990866'
     }
   } else if (eventType.toUpperCase() === 'VEB') {
     switch (status) {
@@ -102,7 +100,7 @@ const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { de
         dealstage = '167042458'
         break
       default:
-        dealstage = '167042459' // Default to approved
+        dealstage = '167042459'
     }
   } else if (eventType.toUpperCase() === 'VRT') {
     switch (status) {
@@ -116,14 +114,13 @@ const getHubSpotDealStageAndPipeline = (status: string, eventType: string): { de
         dealstage = '167095396'
         break
       default:
-        dealstage = '167095399' // Default to approved
+        dealstage = '167095399'
     }
   }
 
   return { dealstage, pipeline }
 }
 
-// Map event type to SINC Deal Type property
 const getSincDealType = (eventType: string): string => {
   switch (eventType.toUpperCase()) {
     case 'FORUM':
@@ -135,11 +132,10 @@ const getSincDealType = (eventType: string): string => {
     case 'VRT':
       return 'vRoundtable Attendee'
     default:
-      return 'Forum Attendee' // Default to Forum Attendee
+      return 'Forum Attendee'
   }
 }
 
-// Search for contact by email in HubSpot
 const findContactByEmail = async (email: string, hubspotApiKey: string): Promise<string | null> => {
   try {
     console.log(`🔍 Searching for contact with email: ${email}`)
@@ -185,10 +181,9 @@ const findContactByEmail = async (email: string, hubspotApiKey: string): Promise
   }
 }
 
-// Create contact if not found
-const createContact = async (submission: SubmissionData, hubspotApiKey: string): Promise<string | null> => {
+const createContact = async (attendee: AttendeeData, hubspotApiKey: string): Promise<string | null> => {
   try {
-    console.log(`👤 Creating new contact for: ${submission.email}`)
+    console.log(`👤 Creating new contact for: ${attendee.email}`)
     const response = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts`, {
       method: 'POST',
       headers: {
@@ -197,12 +192,12 @@ const createContact = async (submission: SubmissionData, hubspotApiKey: string):
       },
       body: JSON.stringify({
         properties: {
-          email: submission.email,
-          firstname: submission.firstname,
-          lastname: submission.lastname,
-          company: submission.company,
-          jobtitle: submission.jobtitle,
-          industry: submission.industry
+          email: attendee.email,
+          firstname: attendee.first_name,
+          lastname: attendee.last_name,
+          company: attendee.company,
+          jobtitle: attendee.title,
+          industry: attendee.industry
         }
       })
     })
@@ -226,92 +221,42 @@ const createContact = async (submission: SubmissionData, hubspotApiKey: string):
   }
 }
 
-// Search for existing deal by deal code
-const findDealByDealCode = async (dealCode: string, hubspotApiKey: string): Promise<string | null> => {
-  try {
-    console.log(`🔍 Searching for existing deal: ${dealCode}`)
-    const response = await fetch(`https://api.hubapi.com/crm/v3/objects/deals/search`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hubspotApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        filterGroups: [{
-          filters: [{
-            propertyName: 'dealname',
-            operator: 'EQ',
-            value: dealCode
-          }]
-        }],
-        properties: ['id', 'dealname', 'dealstage']
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('❌ Failed to search for deal:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText
-      })
-      return null
-    }
-
-    const data = await response.json()
-    if (data.results && data.results.length > 0) {
-      console.log(`✅ Found existing deal: ${data.results[0].id}`)
-      return data.results[0].id
-    }
-
-    console.log('ℹ️ No existing deal found')
-    return null
-  } catch (error) {
-    console.error('💥 Error searching for deal:', error)
-    return null
-  }
-}
-
-// Create or update deal in HubSpot
 const createOrUpdateDeal = async (
-  submission: SubmissionData,
-  event: EventData,
+  attendee: AttendeeData,
+  forum: ForumData,
+  dealCode: string,
   contactId: string,
-  sincRepId: string | undefined,
+  status: string,
   hubspotApiKey: string
 ): Promise<string | null> => {
   try {
-    const { dealstage, pipeline } = getHubSpotDealStageAndPipeline(submission.status, event.event_type)
-    const dealName = submission.deal_code
-    const sincDealType = getSincDealType(event.event_type)
+    const { dealstage, pipeline } = getHubSpotDealStageAndPipeline(status, forum.brand)
+    const sincDealType = getSincDealType(forum.brand)
 
-    const dealProperties = {
-      dealname: dealName,
+    const dealProperties: any = {
+      dealname: dealCode,
       dealstage: dealstage,
       pipeline: pipeline,
-      closedate: new Date().toISOString(), // Use current date/time
-      // Map submission data to deal properties using correct property names
-      company_name: submission.company,
-      contact_email: submission.email,
-      contact_name: `${submission.firstname} ${submission.lastname}`,
-      industry: submission.industry,
-      sinc_deal_type: sincDealType
+      closedate: new Date().toISOString(),
+      company_name: attendee.company,
+      contact_email: attendee.email,
+      contact_name: `${attendee.first_name} ${attendee.last_name}`,
+      industry: attendee.industry,
+      sinc_deal_type: sincDealType,
+      executive_attendance_level: `${status};${attendee.management_level}`
     }
 
-    // Add hubspot_owner_id if sincRepId is provided
-    if (sincRepId) {
-      // HubSpot expects owner IDs as numbers, but our IDs are stored as strings
-      // We need to convert them to numbers for the API
-      console.log(`Assigning HubSpot owner ID: ${sincRepId}`);
-      Object.assign(dealProperties, { hubspot_owner_id: parseInt(sincRepId, 10) });
-    } else {
-      console.log('ℹ️ No SINC Rep ID provided. Skipping owner assignment.');
+    if (attendee.sinc_rep) {
+      const ownerId = parseInt(attendee.sinc_rep, 10)
+      if (!isNaN(ownerId)) {
+        console.log(`Assigning HubSpot owner ID: ${ownerId}`)
+        dealProperties.hubspot_owner_id = ownerId
+      }
     }
 
-    let dealId: string
+    console.log(`Creating new deal: ${dealCode}`)
+    console.log(`Deal properties:`, JSON.stringify(dealProperties, null, 2))
 
-    // Create new deal
-    console.log(`Creating new deal: ${dealName}`)
     const response = await fetch(`https://api.hubapi.com/crm/v3/objects/deals`, {
       method: 'POST',
       headers: {
@@ -324,14 +269,14 @@ const createOrUpdateDeal = async (
     })
 
     if (!response.ok) {
-      console.error('Failed to create deal:', response.status, await response.text())
+      const errorText = await response.text()
+      console.error('Failed to create deal:', response.status, errorText)
       return null
     }
 
     const data = await response.json()
-    dealId = data.id
+    const dealId = data.id
 
-    // Associate deal with contact
     await associateDealWithContact(dealId, contactId, hubspotApiKey)
 
     return dealId
@@ -341,7 +286,6 @@ const createOrUpdateDeal = async (
   }
 }
 
-// Associate deal with contact
 const associateDealWithContact = async (dealId: string, contactId: string, hubspotApiKey: string): Promise<boolean> => {
   try {
     const response = await fetch(`https://api.hubapi.com/crm/v3/objects/deals/${dealId}/associations/contacts/${contactId}/deal_to_contact`, {
@@ -381,36 +325,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Get HubSpot API key
     const hubspotApiKey = Deno.env.get('HUBSPOT_API_KEY')
-    console.log('🔧 HubSpot Deal Manager - Environment check:')
-    console.log('- HubSpot API Key available:', !!hubspotApiKey)
-    console.log('- HubSpot API Key length:', hubspotApiKey?.length || 0)
-    console.log('- All environment variables:', Object.keys(Deno.env.toObject()))
+    console.log('🔧 HubSpot API Key available:', !!hubspotApiKey)
 
     if (!hubspotApiKey) {
-      const errorMessage = `❌ HUBSPOT_API_KEY environment variable is not set.
-
-To fix this:
-1. Go to your Supabase Dashboard
-2. Navigate to Edge Functions
-3. Select the 'hubspot-deal-manager' function
-4. Add environment variable: HUBSPOT_API_KEY with your HubSpot private app token
-5. Your HubSpot API key should start with 'pat-' and be found in your HubSpot app settings
-
-Available environment variables: ${Object.keys(Deno.env.toObject()).join(', ')}`
-
-      console.error(errorMessage)
+      console.error('❌ HUBSPOT_API_KEY environment variable is not set')
       return new Response(
         JSON.stringify({
           error: 'HubSpot API key not configured',
-          details: 'HUBSPOT_API_KEY environment variable is missing. Please configure it in Supabase Edge Functions settings.',
-          instructions: [
-            'Go to Supabase Dashboard → Edge Functions',
-            'Select hubspot-deal-manager function',
-            'Add HUBSPOT_API_KEY environment variable',
-            'Use your HubSpot private app token (starts with pat-)'
-          ]
+          details: 'HUBSPOT_API_KEY environment variable is missing'
         }),
         {
           status: 500,
@@ -419,23 +342,6 @@ Available environment variables: ${Object.keys(Deno.env.toObject()).join(', ')}`
       )
     }
 
-    // Validate HubSpot API key format
-    if (!hubspotApiKey.startsWith('pat-')) {
-      console.error('❌ HubSpot API key format is invalid. It should start with "pat-"')
-      return new Response(
-        JSON.stringify({
-          error: 'Invalid HubSpot API key format',
-          details: 'HubSpot API key should start with "pat-". Please check your private app token.',
-          currentKeyPrefix: hubspotApiKey.substring(0, 10) + '...'
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
-    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -447,47 +353,55 @@ Available environment variables: ${Object.keys(Deno.env.toObject()).join(', ')}`
       }
     )
 
-    const { submissionId, status, eventId, sincRepId }: DealRequest = await req.json()
+    const { attendeeId, status, forumId }: DealRequest = await req.json()
 
-    if (!submissionId || !status || !eventId) {
+    if (!attendeeId || !status || !forumId) {
       return new Response(
-        JSON.stringify({ error: 'Missing required parameters: submissionId, status, eventId' }),
+        JSON.stringify({ error: 'Missing required parameters: attendeeId, status, forumId' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`Processing HubSpot deal for submission ${submissionId} with status ${status}`)
+    console.log(`Processing HubSpot deal for attendee ${attendeeId} with status ${status}`)
 
-    // Get submission data
-    const { data: submission, error: submissionError } = await supabaseClient
-      .from('hubspot_submissions')
+    const { data: attendee, error: attendeeError } = await supabaseClient
+      .from('attendees')
       .select('*')
-      .eq('id', submissionId.toString())
-      .single()
+      .eq('id', attendeeId)
+      .maybeSingle()
 
-    if (submissionError || !submission) {
-      console.error('Submission not found:', submissionError)
-      throw new Error(`Submission not found: ${submissionId}`)
+    if (attendeeError || !attendee) {
+      console.error('Attendee not found:', attendeeError)
+      throw new Error(`Attendee not found: ${attendeeId}`)
     }
 
-    // Get event data
-    const { data: event, error: eventError } = await supabaseClient
-      .from('events')
+    const { data: forum, error: forumError } = await supabaseClient
+      .from('forums')
       .select('*')
-      .eq('id', eventId.toString())
-      .single()
+      .eq('id', forumId)
+      .maybeSingle()
 
-    if (eventError || !event) {
-      console.error('Event not found:', eventError)
-      throw new Error(`Event not found: ${eventId}`)
+    if (forumError || !forum) {
+      console.error('Forum not found:', forumError)
+      throw new Error(`Forum not found: ${forumId}`)
     }
 
-    // Find or create contact in HubSpot
-    let contactId = await findContactByEmail(submission.email, hubspotApiKey)
+    const { data: forumSettings, error: settingsError } = await supabaseClient
+      .from('forum_settings')
+      .select('deal_code')
+      .eq('forum_id', forumId)
+      .maybeSingle()
+
+    if (settingsError || !forumSettings || !forumSettings.deal_code) {
+      console.error('Forum settings or deal_code not found:', settingsError)
+      throw new Error(`Forum settings or deal_code not found for forum: ${forumId}`)
+    }
+
+    let contactId = await findContactByEmail(attendee.email, hubspotApiKey)
 
     if (!contactId) {
-      console.log(`Contact not found for ${submission.email}, creating new contact`)
-      contactId = await createContact(submission, hubspotApiKey)
+      console.log(`Contact not found for ${attendee.email}, creating new contact`)
+      contactId = await createContact(attendee, hubspotApiKey)
 
       if (!contactId) {
         throw new Error('Failed to find or create contact in HubSpot')
@@ -496,12 +410,16 @@ Available environment variables: ${Object.keys(Deno.env.toObject()).join(', ')}`
 
     console.log(`Found/created contact: ${contactId}`)
 
-    // Create or update deal
-    const dealId = await createOrUpdateDeal(submission, event, contactId, sincRepId, hubspotApiKey)
+    const dealId = await createOrUpdateDeal(attendee, forum, forumSettings.deal_code, contactId, status, hubspotApiKey)
 
     if (!dealId) {
       throw new Error('Failed to create or update deal in HubSpot')
     }
+
+    await supabaseClient
+      .from('attendees')
+      .update({ hubspot_deal_id: dealId })
+      .eq('id', attendeeId)
 
     console.log(`Successfully processed deal: ${dealId}`)
 
@@ -510,14 +428,7 @@ Available environment variables: ${Object.keys(Deno.env.toObject()).join(', ')}`
         success: true,
         dealId,
         contactId,
-        message: 'HubSpot deal processed successfully',
-        details: {
-          dealName: submission.deal_code,
-          dealStage: getHubSpotDealStageAndPipeline(submission.status, event.event_type).dealstage,
-          eventName: event.event_name,
-          submissionEmail: submission.email,
-          sincRepId: sincRepId
-        }
+        message: 'HubSpot deal processed successfully'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -527,16 +438,15 @@ Available environment variables: ${Object.keys(Deno.env.toObject()).join(', ')}`
   } catch (error) {
     console.error('HubSpot deal manager error:', error instanceof Error ? error.message : error)
 
-    // Check for specific HubSpot API errors
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     let detailedError = errorMessage;
 
     if (errorMessage.includes('API key')) {
-      detailedError = 'HubSpot API key is invalid or missing. Please check your environment variables.';
+      detailedError = 'HubSpot API key is invalid or missing';
     } else if (errorMessage.includes('rate limit')) {
-      detailedError = 'HubSpot API rate limit exceeded. Please try again later.';
+      detailedError = 'HubSpot API rate limit exceeded';
     } else if (errorMessage.includes('Failed to fetch')) {
-      detailedError = 'Network error connecting to HubSpot API. Please check your API key and network connectivity.';
+      detailedError = 'Network error connecting to HubSpot API';
     }
 
     return new Response(
