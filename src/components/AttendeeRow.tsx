@@ -65,6 +65,8 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
   const [showDenialReasonModal, setShowDenialReasonModal] = useState(false);
   const [showHubSpotSyncModal, setShowHubSpotSyncModal] = useState(false);
   const [syncingHubSpot, setSyncingHubSpot] = useState(false);
+  const [showDebugModal, setShowDebugModal] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   const userCanApprove = user ? canApproveAttendees(user.role) : false;
   const userCanSendEmails = user ? canSendEmails(user.role) : false;
@@ -316,6 +318,13 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
   }
 
   async function handleHubSpotSync() {
+    const debug: any = {
+      timestamp: new Date().toISOString(),
+      request: {},
+      response: {},
+      error: null,
+    };
+
     try {
       setSyncingHubSpot(true);
       setShowHubSpotSyncModal(false);
@@ -326,27 +335,49 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
         'Content-Type': 'application/json',
       };
 
+      const requestBody = {
+        attendeeId: attendee.id,
+        forumId: attendee.forum_id,
+        status: formData.stage,
+      };
+
+      debug.request = {
+        url: apiUrl,
+        method: 'POST',
+        headers: { ...headers, Authorization: 'Bearer [HIDDEN]' },
+        body: requestBody,
+      };
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          attendeeId: attendee.id,
-          forumId: attendee.forum_id,
-          status: formData.stage,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      debug.response = {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      };
+
       const result = await response.json();
+      debug.response.body = result;
 
       if (response.ok && result.success) {
-        alert(`HubSpot deal ${result.action} successfully!`);
+        setDebugInfo(debug);
+        setShowDebugModal(true);
         onRefresh();
       } else {
-        throw new Error(result.details || result.error || 'Failed to sync with HubSpot');
+        debug.error = result.details || result.error || 'Failed to sync with HubSpot';
+        setDebugInfo(debug);
+        setShowDebugModal(true);
       }
     } catch (err) {
       console.error('Error syncing with HubSpot:', err);
-      alert(`Failed to sync with HubSpot: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      debug.error = err instanceof Error ? err.message : 'Unknown error';
+      debug.exception = err;
+      setDebugInfo(debug);
+      setShowDebugModal(true);
     } finally {
       setSyncingHubSpot(false);
     }
@@ -369,7 +400,6 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
 
       if (error) throw error;
       onRefresh();
-      setIsExpanded(false);
     } catch (err) {
       console.error('Error saving attendee:', err);
       alert('Failed to save changes');
@@ -812,6 +842,71 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
           onConfirm={handleHubSpotSync}
           onClose={() => setShowHubSpotSyncModal(false)}
         />
+      )}
+      {showDebugModal && debugInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900">HubSpot Sync Debug Log</h2>
+              <button
+                onClick={() => setShowDebugModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-auto flex-1">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-2">Timestamp</h3>
+                  <div className="bg-gray-50 p-3 rounded border border-gray-200 text-sm">
+                    {debugInfo.timestamp}
+                  </div>
+                </div>
+
+                {debugInfo.error && (
+                  <div>
+                    <h3 className="font-semibold text-red-700 mb-2">Error</h3>
+                    <div className="bg-red-50 p-3 rounded border border-red-200 text-sm text-red-800">
+                      {debugInfo.error}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-2">Request</h3>
+                  <pre className="bg-gray-50 p-3 rounded border border-gray-200 text-xs overflow-auto">
+                    {JSON.stringify(debugInfo.request, null, 2)}
+                  </pre>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-2">Response</h3>
+                  <pre className="bg-gray-50 p-3 rounded border border-gray-200 text-xs overflow-auto">
+                    {JSON.stringify(debugInfo.response, null, 2)}
+                  </pre>
+                </div>
+
+                {debugInfo.exception && (
+                  <div>
+                    <h3 className="font-semibold text-red-700 mb-2">Exception Details</h3>
+                    <pre className="bg-red-50 p-3 rounded border border-red-200 text-xs overflow-auto text-red-800">
+                      {JSON.stringify(debugInfo.exception, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+              <button
+                onClick={() => setShowDebugModal(false)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
