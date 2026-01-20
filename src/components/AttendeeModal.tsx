@@ -52,7 +52,10 @@ export function AttendeeModal({ forumId, attendee, onClose }: AttendeeModalProps
     dietary_notes: '',
     gender: '',
     notes: '',
-    denial_reason: null
+    denial_reason: null,
+    forums_registered_count: 0,
+    forums_attended_count: 0,
+    percent_attendance: 0
   });
 
   useEffect(() => {
@@ -90,7 +93,10 @@ export function AttendeeModal({ forumId, attendee, onClose }: AttendeeModalProps
         dietary_notes: attendee.dietary_notes,
         gender: attendee.gender,
         notes: attendee.notes,
-        denial_reason: attendee.denial_reason
+        denial_reason: attendee.denial_reason,
+        forums_registered_count: attendee.forums_registered_count,
+        forums_attended_count: attendee.forums_attended_count,
+        percent_attendance: attendee.percent_attendance
       });
     }
   }, [attendee]);
@@ -557,6 +563,50 @@ export function AttendeeModal({ forumId, attendee, onClose }: AttendeeModalProps
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-4">Attendance Tracking</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Forums Registered
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.forums_registered_count}
+                    onChange={(e) => setFormData({ ...formData, forums_registered_count: parseInt(e.target.value) || 0 })}
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Forums Attended
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.forums_attended_count}
+                    onChange={(e) => setFormData({ ...formData, forums_attended_count: parseInt(e.target.value) || 0 })}
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Percent Attendance (%)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.percent_attendance}
+                    onChange={(e) => setFormData({ ...formData, percent_attendance: parseFloat(e.target.value) || 0 })}
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </form>

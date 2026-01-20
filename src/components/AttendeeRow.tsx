@@ -616,6 +616,18 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
                   <input type="text" value={formData.company_size} onChange={(e) => setFormData({ ...formData, company_size: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
+                  <label className="block font-medium text-gray-700 mb-1">Forums Registered</label>
+                  <input type="number" value={formData.forums_registered_count} onChange={(e) => setFormData({ ...formData, forums_registered_count: parseInt(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" />
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-700 mb-1">Forums Attended</label>
+                  <input type="number" value={formData.forums_attended_count} onChange={(e) => setFormData({ ...formData, forums_attended_count: parseInt(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" />
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-700 mb-1">Percent Attendance</label>
+                  <input type="number" value={formData.percent_attendance} onChange={(e) => setFormData({ ...formData, percent_attendance: parseFloat(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" max="100" step="0.01" />
+                </div>
+                <div>
                   <label className="block font-medium text-gray-700 mb-1">Industry</label>
                   <input type="text" value={formData.industry} onChange={(e) => setFormData({ ...formData, industry: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
