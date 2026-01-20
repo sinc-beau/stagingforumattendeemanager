@@ -48,17 +48,12 @@ function HomePage() {
       <AppHeader />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-blue-600 p-3 rounded-lg">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <h1 className="text-4xl font-bold text-gray-900">
-                Forum Management
-              </h1>
-            </div>
-            <p className="text-lg text-gray-600">
-              View and manage forum events and attendees
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              Forum Attendee Management
+            </h1>
+            <p className="text-sm text-gray-600">
+              Registration approval system for forum attendees plus required fields for commission.
             </p>
           </div>
 

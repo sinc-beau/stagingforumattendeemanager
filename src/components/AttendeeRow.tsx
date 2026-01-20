@@ -616,18 +616,6 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
                   <input type="text" value={formData.company_size} onChange={(e) => setFormData({ ...formData, company_size: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
                 <div>
-                  <label className="block font-medium text-gray-700 mb-1">Forums Registered</label>
-                  <input type="number" value={formData.forums_registered_count} onChange={(e) => setFormData({ ...formData, forums_registered_count: parseInt(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" />
-                </div>
-                <div>
-                  <label className="block font-medium text-gray-700 mb-1">Forums Attended</label>
-                  <input type="number" value={formData.forums_attended_count} onChange={(e) => setFormData({ ...formData, forums_attended_count: parseInt(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" />
-                </div>
-                <div>
-                  <label className="block font-medium text-gray-700 mb-1">Percent Attendance</label>
-                  <input type="number" value={formData.percent_attendance} onChange={(e) => setFormData({ ...formData, percent_attendance: parseFloat(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" max="100" step="0.01" />
-                </div>
-                <div>
                   <label className="block font-medium text-gray-700 mb-1">Industry</label>
                   <input type="text" value={formData.industry} onChange={(e) => setFormData({ ...formData, industry: e.target.value })} className="w-full px-2 py-1.5 border border-gray-300 rounded" />
                 </div>
@@ -732,7 +720,11 @@ export function AttendeeRow({ attendee, onRefresh }: AttendeeRowProps) {
                     <option value="No">No</option>
                   </select>
                 </div>
-                <div className="col-span-4 flex gap-6 items-center pt-6">
+                <div>
+                  <label className="block font-medium text-gray-700 mb-1">Percent Attendance</label>
+                  <input type="number" value={formData.percent_attendance} onChange={(e) => setFormData({ ...formData, percent_attendance: parseFloat(e.target.value) || 0 })} className="w-full px-2 py-1.5 border border-gray-300 rounded" min="0" max="100" step="0.01" />
+                </div>
+                <div className="col-span-3 flex gap-6 items-center pt-6">
                   <label className="flex items-center gap-2">
                     <input type="checkbox" checked={formData.pre_event_call_scheduled} onChange={(e) => setFormData({ ...formData, pre_event_call_scheduled: e.target.checked })} className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded" />
                     <span className="text-gray-700">Pre Event Call</span>

@@ -49,8 +49,6 @@ export interface Attendee {
   denial_reason: string | null;
   executive_profile_received: boolean;
   executive_profile_data: ProfileQuestion[] | null;
-  forums_registered_count: number;
-  forums_attended_count: number;
   percent_attendance: number;
   created_at: string;
   updated_at: string;
