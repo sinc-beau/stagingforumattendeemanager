@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, Database, AlertCircle, CheckCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, forumsClient } from '../lib/supabase';
 import { fetchInitialRegistration, fetchExecutiveProfile, type HubSpotResponse } from '../services/hubspot';
 import type { ForumSettings } from '../types/database';
 
@@ -36,14 +36,14 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
   async function fetchSettings() {
     try {
       setSettingsError(null);
-      const { data, error } = await supabase
+      const { data, error } = await forumsClient
         .from('forum_settings')
         .select('*')
         .eq('forum_id', forumId)
         .maybeSingle();
 
       if (error) {
-        console.error('Supabase settings error:', error);
+        console.error('Forum settings error:', error);
         setSettingsError(`Failed to load settings: ${error.message}`);
         throw error;
       }
@@ -59,8 +59,8 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
   }
 
   async function analyzeSubmissions(formId: string, type: 'executive' | 'initial'): Promise<{ newCount: number; duplicateCount: number }> {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseUrl = import.meta.env.VITE_EXTERNAL_FORUMS_URL;
+    const supabaseAnonKey = import.meta.env.VITE_EXTERNAL_FORUMS_ANON_KEY;
 
     const fetchFunction = type === 'executive' ? fetchExecutiveProfile : fetchInitialRegistration;
     const response = await fetchFunction(
@@ -79,7 +79,7 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
       return values.email || values.Email || values.EMAIL;
     }).filter(Boolean);
 
-    const { data: existingAttendees } = await supabase
+    const { data: existingAttendees } = await forumsClient
       .from('attendees')
       .select('email')
       .eq('forum_id', forumId)
@@ -112,8 +112,8 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
     setResults(null);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const supabaseUrl = import.meta.env.VITE_EXTERNAL_FORUMS_URL;
+      const supabaseAnonKey = import.meta.env.VITE_EXTERNAL_FORUMS_ANON_KEY;
 
       const fetchFunction = type === 'executive' ? fetchExecutiveProfile : fetchInitialRegistration;
       const response = await fetchFunction(
@@ -153,8 +153,8 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
     setSuccess(null);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const supabaseUrl = import.meta.env.VITE_EXTERNAL_FORUMS_URL;
+      const supabaseAnonKey = import.meta.env.VITE_EXTERNAL_FORUMS_ANON_KEY;
 
       const fetchFunction = type === 'executive' ? fetchExecutiveProfile : fetchInitialRegistration;
       const response = await fetchFunction(

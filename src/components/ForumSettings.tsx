@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { forumsClient } from '../lib/supabase';
 import type { ForumSettings as ForumSettingsType } from '../types/database';
 
 interface ForumSettingsProps {
@@ -26,7 +26,7 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
   async function fetchSettings() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await forumsClient
         .from('forum_settings')
         .select('*')
         .eq('forum_id', forumId)
@@ -55,7 +55,7 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
     try {
       setSaving(true);
 
-      const { error } = await supabase
+      const { error } = await forumsClient
         .from('forum_settings')
         .upsert({
           forum_id: forumId,
