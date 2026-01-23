@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { ForumSettings as ForumSettingsType } from '../types/database';
+import { syncForumToLocal } from '../utils/forumSync';
 
 interface ForumSettingsProps {
   forumId: string;
@@ -58,6 +59,11 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
       setSaving(true);
       setError(null);
       setSuccess(null);
+
+      const syncResult = await syncForumToLocal(forumId);
+      if (!syncResult.success) {
+        throw new Error(syncResult.error || 'Failed to sync forum data');
+      }
 
       const { error } = await supabase
         .from('forum_settings')

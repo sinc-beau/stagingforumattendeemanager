@@ -6,6 +6,7 @@ import { ForumSettings } from '../components/ForumSettings';
 import { AttendeesTable } from '../components/AttendeesTable';
 import { HubSpotSync } from '../components/HubSpotSync';
 import { AppHeader } from '../components/AppHeader';
+import { syncForumToLocal } from '../utils/forumSync';
 
 export function ForumManagement() {
   const { forumId } = useParams<{ forumId: string }>();
@@ -32,6 +33,10 @@ export function ForumManagement() {
 
       if (error) throw error;
       setForum(data);
+
+      if (data && forumId) {
+        await syncForumToLocal(forumId);
+      }
     } catch (err) {
       console.error('Error fetching forum:', err);
     } finally {

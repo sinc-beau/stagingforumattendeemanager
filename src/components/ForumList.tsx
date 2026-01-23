@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Building2, Tag, ArrowRight, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { forumsClient, supabase, type Forum } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { syncForumToLocal } from '../utils/forumSync';
 
 interface ForumStats {
   approved: number;
@@ -38,6 +39,10 @@ export function ForumList() {
 
       if (error) throw error;
       setForums(data || []);
+
+      if (data && data.length > 0) {
+        await Promise.all(data.map(forum => syncForumToLocal(forum.id)));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
