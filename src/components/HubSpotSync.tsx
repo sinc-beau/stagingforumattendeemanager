@@ -17,6 +17,7 @@ interface FetchResults {
 
 export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
   const [settings, setSettings] = useState<ForumSettings | null>(null);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
   const [execFetchResults, setExecFetchResults] = useState<FetchResults | null>(null);
   const [initFetchResults, setInitFetchResults] = useState<FetchResults | null>(null);
   const [execLoading, setExecLoading] = useState(false);
@@ -34,16 +35,26 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
 
   async function fetchSettings() {
     try {
+      setSettingsError(null);
       const { data, error } = await supabase
         .from('forum_settings')
         .select('*')
         .eq('forum_id', forumId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase settings error:', error);
+        setSettingsError(`Failed to load settings: ${error.message}`);
+        throw error;
+      }
+
+      console.log('Loaded settings:', data);
       setSettings(data);
     } catch (err) {
       console.error('Error fetching settings:', err);
+      if (err instanceof Error && !settingsError) {
+        setSettingsError(`Error: ${err.message}`);
+      }
     }
   }
 
@@ -305,6 +316,18 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
 
   return (
     <div className="space-y-3">
+      {settingsError && (
+        <div className="bg-red-50 border border-red-200 rounded p-3">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-red-900 font-medium text-sm">Settings Error</p>
+              <p className="text-red-800 text-sm mt-1">{settingsError}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <FormSection
         type="executive"
         title="Executive Profile"
