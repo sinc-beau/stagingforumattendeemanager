@@ -55,39 +55,24 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
     try {
       setSaving(true);
 
-      if (settings) {
-        const { error } = await supabase
-          .from('forum_settings')
-          .update({
-            initial_registration_form_id: initialFormId,
-            executive_profile_form_id: executiveFormId,
-            approved_email_template_id: approvedTemplateId,
-            denied_email_template_id: deniedTemplateId,
-            waitlisted_email_template_id: waitlistedTemplateId,
-            preliminary_approved_email_template_id: preliminaryApprovedTemplateId,
-            deal_code: dealCode,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', settings.id);
+      const { error } = await supabase
+        .from('forum_settings')
+        .upsert({
+          forum_id: forumId,
+          initial_registration_form_id: initialFormId,
+          executive_profile_form_id: executiveFormId,
+          approved_email_template_id: approvedTemplateId,
+          denied_email_template_id: deniedTemplateId,
+          waitlisted_email_template_id: waitlistedTemplateId,
+          preliminary_approved_email_template_id: preliminaryApprovedTemplateId,
+          deal_code: dealCode,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'forum_id'
+        });
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('forum_settings')
-          .insert({
-            forum_id: forumId,
-            initial_registration_form_id: initialFormId,
-            executive_profile_form_id: executiveFormId,
-            approved_email_template_id: approvedTemplateId,
-            denied_email_template_id: deniedTemplateId,
-            waitlisted_email_template_id: waitlistedTemplateId,
-            preliminary_approved_email_template_id: preliminaryApprovedTemplateId,
-            deal_code: dealCode
-          });
-
-        if (error) throw error;
-        await fetchSettings();
-      }
+      if (error) throw error;
+      await fetchSettings();
     } catch (err) {
       console.error('Error saving settings:', err);
     } finally {
