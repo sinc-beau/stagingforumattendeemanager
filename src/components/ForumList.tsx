@@ -40,18 +40,33 @@ export function ForumList() {
           brand,
           date,
           city,
-          venue,
-          forum_settings (
-            deal_code
-          )
+          venue
         `)
         .order('date', { ascending: true });
 
       if (error) throw error;
-      setForums(data || []);
 
       if (data && data.length > 0) {
         await Promise.all(data.map(forum => syncForumToLocal(forum.id)));
+
+        const forumIds = data.map(f => f.id);
+        const { data: settingsData } = await supabase
+          .from('forum_settings')
+          .select('forum_id, deal_code')
+          .in('forum_id', forumIds);
+
+        const settingsMap = new Map(
+          settingsData?.map(s => [s.forum_id, s]) || []
+        );
+
+        const forumsWithSettings = data.map(forum => ({
+          ...forum,
+          forum_settings: settingsMap.has(forum.id) ? [settingsMap.get(forum.id)] : []
+        }));
+
+        setForums(forumsWithSettings);
+      } else {
+        setForums([]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Settings, Users as UsersIcon, Download } from 'lucide-react';
-import { forumsClient, type Forum } from '../lib/supabase';
+import { forumsClient, supabase, type Forum } from '../lib/supabase';
 import { ForumSettings } from '../components/ForumSettings';
 import { AttendeesTable } from '../components/AttendeesTable';
 import { HubSpotSync } from '../components/HubSpotSync';
@@ -27,20 +27,29 @@ export function ForumManagement() {
       setLoading(true);
       const { data, error } = await forumsClient
         .from('forums')
-        .select(`
-          *,
-          forum_settings (
-            deal_code
-          )
-        `)
+        .select('*')
         .eq('id', forumId)
         .maybeSingle();
 
       if (error) throw error;
-      setForum(data);
 
       if (data && forumId) {
         await syncForumToLocal(forumId);
+
+        const { data: settingsData } = await supabase
+          .from('forum_settings')
+          .select('deal_code')
+          .eq('forum_id', forumId)
+          .maybeSingle();
+
+        const forumWithSettings = {
+          ...data,
+          forum_settings: settingsData ? [settingsData] : []
+        };
+
+        setForum(forumWithSettings);
+      } else {
+        setForum(data);
       }
     } catch (err) {
       console.error('Error fetching forum:', err);
