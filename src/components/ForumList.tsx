@@ -34,7 +34,17 @@ export function ForumList() {
       setLoading(true);
       const { data, error } = await forumsClient
         .from('forums')
-        .select('id, name, brand, date, city, venue')
+        .select(`
+          id,
+          name,
+          brand,
+          date,
+          city,
+          venue,
+          forum_settings (
+            deal_code
+          )
+        `)
         .order('date', { ascending: true });
 
       if (error) throw error;
@@ -116,9 +126,10 @@ export function ForumList() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="space-y-3">
       {forums.map((forum) => {
         const forumStats = stats[forum.id] || { approved: 0, inQueue: 0, denied: 0 };
+        const dealCode = (forum as any).forum_settings?.[0]?.deal_code;
 
         return (
           <div
@@ -127,58 +138,65 @@ export function ForumList() {
             onClick={() => navigate(`/forum/${forum.id}`)}
           >
             <div className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                  {forum.name}
-                </h3>
-                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0 ml-2" />
-              </div>
-
-              <div className="space-y-2 mb-3">
-                <div className="flex items-center text-gray-600">
-                  <Tag className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                  <span className="text-xs">{forum.brand}</span>
-                </div>
-
-                <div className="flex items-center text-gray-600">
-                  <Calendar className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                  <span className="text-xs">
-                    {new Date(forum.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-
-                <div className="flex items-center text-gray-600">
-                  <MapPin className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                  <span className="text-xs">{forum.city}</span>
-                </div>
-
-                <div className="flex items-center text-gray-600">
-                  <Building2 className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                  <span className="text-xs">{forum.venue}</span>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-gray-100">
-                <div className="flex items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-1 text-green-700">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    <span className="font-medium">{forumStats.approved}</span>
-                    <span className="text-gray-500">approved</span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {forum.name}
+                    </h3>
+                    {dealCode && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                        {dealCode}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1 text-amber-600">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span className="font-medium">{forumStats.inQueue}</span>
-                    <span className="text-gray-500">in queue</span>
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{forum.brand}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>
+                        {new Date(forum.date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{forum.city}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{forum.venue}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-red-600">
-                    <XCircle className="w-3.5 h-3.5" />
-                    <span className="font-medium">{forumStats.denied}</span>
-                    <span className="text-gray-500">denied</span>
+                </div>
+
+                <div className="flex items-center gap-4 flex-shrink-0">
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="flex items-center gap-1 text-green-700">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="font-medium">{forumStats.approved}</span>
+                      <span className="text-gray-500">approved</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-600">
+                      <Clock className="w-4 h-4" />
+                      <span className="font-medium">{forumStats.inQueue}</span>
+                      <span className="text-gray-500">in queue</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-red-600">
+                      <XCircle className="w-4 h-4" />
+                      <span className="font-medium">{forumStats.denied}</span>
+                      <span className="text-gray-500">denied</span>
+                    </div>
                   </div>
+
+                  <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                 </div>
               </div>
             </div>

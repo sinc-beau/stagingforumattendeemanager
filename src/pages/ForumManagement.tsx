@@ -27,7 +27,12 @@ export function ForumManagement() {
       setLoading(true);
       const { data, error } = await forumsClient
         .from('forums')
-        .select('*')
+        .select(`
+          *,
+          forum_settings (
+            deal_code
+          )
+        `)
         .eq('id', forumId)
         .maybeSingle();
 
@@ -88,7 +93,14 @@ export function ForumManagement() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{forum.name}</h1>
+              <div className="flex items-center gap-3 mb-4">
+                <h1 className="text-3xl font-bold text-gray-900">{forum.name}</h1>
+                {(forum as any).forum_settings?.[0]?.deal_code && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                    {(forum as any).forum_settings[0].deal_code}
+                  </span>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500">Brand:</span>
