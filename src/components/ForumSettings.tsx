@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { ForumSettings as ForumSettingsType } from '../types/database';
 
@@ -18,6 +18,8 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
   const [dealCode, setDealCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSettings();
@@ -54,6 +56,8 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
   async function saveSettings() {
     try {
       setSaving(true);
+      setError(null);
+      setSuccess(null);
 
       const { error } = await supabase
         .from('forum_settings')
@@ -71,10 +75,17 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
           onConflict: 'forum_id'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(error.message);
+      }
+
       await fetchSettings();
+      setSuccess('Settings saved successfully!');
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error saving settings:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -214,6 +225,20 @@ export function ForumSettings({ forumId }: ForumSettingsProps) {
             Sent when an attendee application is denied
           </p>
         </div>
+
+        {error && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm">{success}</span>
+          </div>
+        )}
 
         <button
           onClick={saveSettings}
