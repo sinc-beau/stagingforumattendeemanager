@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, Database, AlertCircle, CheckCircle } from 'lucide-react';
-import { supabase, forumsClient } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { fetchInitialRegistration, fetchExecutiveProfile, type HubSpotResponse } from '../services/hubspot';
 import type { ForumSettings } from '../types/database';
 
@@ -36,7 +36,7 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
   async function fetchSettings() {
     try {
       setSettingsError(null);
-      const { data, error } = await forumsClient
+      const { data, error } = await supabase
         .from('forum_settings')
         .select('*')
         .eq('forum_id', forumId)
@@ -79,7 +79,7 @@ export function HubSpotSync({ forumId, onSyncComplete }: HubSpotSyncProps) {
       return values.email || values.Email || values.EMAIL;
     }).filter(Boolean);
 
-    const { data: existingAttendees } = await forumsClient
+    const { data: existingAttendees } = await supabase
       .from('attendees')
       .select('email')
       .eq('forum_id', forumId)
